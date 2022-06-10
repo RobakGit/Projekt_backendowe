@@ -1,0 +1,105 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String
+  password  String
+  firstName String   @map("first_name")
+  lastName  String   @map("second_name")
+  roleId    Int      @map("role_id")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+
+  role Role @relation(fields: [roleId], references: [id])
+
+  Payments Payments[]
+  Access   Access[]
+  Article  Article[]
+
+  @@map("user")
+}
+
+model Role {
+  id   Int    @id @default(autoincrement())
+  uid  String @unique @default(uuid()) @db.Uuid
+  name String
+
+  User User[]
+
+  @@map("role")
+}
+
+model Article {
+  id        Int           @id @default(autoincrement())
+  uid       String        @unique @default(uuid()) @db.Uuid
+  authorId  String        @map("author_id")
+  status    articleStatus @default(active)
+  tag       articleTag?
+  title     String
+  content   String
+  createdAt DateTime      @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime      @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+
+  user User @relation(fields: [authorId], references: [id])
+
+  @@map("article")
+}
+
+model Payments {
+  id        Int            @id @default(autoincrement())
+  uid       String         @unique @default(uuid()) @db.Uuid
+  userId    String         @map("user_id")
+  status    paymentsStatus @default(pending)
+  amount    Float          @db.DoublePrecision
+  createdAt DateTime       @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime       @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+
+  user User @relation(fields: [userId], references: [id])
+
+  Access Access[]
+
+  @@map("payments")
+}
+
+model Access {
+  id        Int      @id @default(autoincrement())
+  uid       String   @unique @default(uuid()) @db.Uuid
+  userId    String   @map("user_id")
+  paymentId Int      @map("payment_id")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  endedAt   DateTime @default(dbgenerated("NOW() + interval '30 days'")) @map("ended_at") @db.Timestamptz
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+
+  user     User     @relation(fields: [userId], references: [id])
+  payments Payments @relation(fields: [paymentId], references: [id])
+
+  @@map("access")
+}
+
+enum articleStatus {
+  active
+  archived
+}
+
+enum articleTag {
+  sport
+  electronics
+  programming
+}
+
+enum paymentsStatus {
+  pending
+  done
+  canceled
+}
