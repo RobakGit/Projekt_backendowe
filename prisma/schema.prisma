@@ -12,16 +12,17 @@ datasource db {
 
 model User {
   id        String   @id @default(cuid())
+  uid       String   @unique @default(uuid()) @db.Uuid
   email     String   @unique
   name      String
   password  String
   firstName String   @map("first_name")
   lastName  String   @map("second_name")
-  roleId    Int      @map("role_id")
+  roleId    Int?     @map("role_id")
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
   updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
 
-  role Role @relation(fields: [roleId], references: [id])
+  role Role? @relation(fields: [roleId], references: [id])
 
   Payments Payments[]
   Access   Access[]
