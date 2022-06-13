@@ -1,16 +1,21 @@
-import { Body, Controller, Get, Post, Request, UseGuards } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
-import { WriterGuard } from 'src/auth/roles.guards';
-import { ArticleService } from './article.service';
+import { Body, Controller, Get, Param, Post, Request, UseGuards } from "@nestjs/common";
+import { Prisma } from "@prisma/client";
+import { ReaderGuard, WriterGuard } from "src/auth/roles.guards";
+import { ArticleService } from "./article.service";
 
-@Controller('article')
+@Controller("article")
 export class ArticleController {
-  constructor(private articleService: ArticleService) { }
+  constructor(private articleService: ArticleService) {}
 
   @UseGuards(WriterGuard)
-  @Post('')
-  async create(@Body() data: Prisma.ArticleCreateInput, @Request()  req) {
-    return this.articleService.createArticle(data, req)
+  @Post("")
+  async create(@Body() data: Prisma.ArticleCreateInput, @Request() req) {
+    return this.articleService.createArticle(data, req);
   }
 
+  @UseGuards(ReaderGuard)
+  @Get(":uid")
+  async getArticle(@Param("uid") uid: string) {
+    return this.articleService.getArticle(uid);
+  }
 }

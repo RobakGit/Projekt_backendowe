@@ -17,4 +17,11 @@ export class ArticleService {
       data,
     });
   }
+
+  async getArticle(uid: string) {
+    return await this.prisma.article.findUnique({
+      select: { uid: true, user: { select: { name: true } }, tag: true, title: true, content: true, createdAt: true, updatedAt: true },
+      where: { uid },
+    });
+  }
 }
