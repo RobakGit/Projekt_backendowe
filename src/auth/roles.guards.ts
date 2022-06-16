@@ -98,7 +98,20 @@ export class AccessGuard implements CanActivate {
         return true;
       }
 
-      if (haveAccess()) {
+      const endAccess = await this.prisma.access.findMany({
+        select: {
+          endedAt: true,
+        },
+        where: {
+          user: user,
+        },
+        orderBy: {
+          endedAt: "desc",
+        },
+        take: 1,
+      });
+
+      if (haveAccess(endAccess[0].endedAt)) {
         return true;
       }
 

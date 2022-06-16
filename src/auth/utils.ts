@@ -1,5 +1,3 @@
-import { NotImplementedException } from "@nestjs/common";
-
 export const isTokenExpired = decodedJwt => {
   if (decodedJwt && decodedJwt.exp) {
     const now = new Date().getTime() / 1000;
@@ -29,6 +27,8 @@ export const isReader = (role: any): boolean => {
   return role === "reader" || role === "writer" || role === "admin";
 };
 
-export const haveAccess = () => {
-  throw new NotImplementedException();
+export const haveAccess = (endAccess: Date): boolean => {
+  if (!endAccess) return false;
+
+  return endAccess > new Date();
 };
