@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { PrismaService } from "../prisma.service";
-import { Prisma } from "@prisma/client";
+import { articleStatus, Prisma } from "@prisma/client";
 import * as jwt from "jsonwebtoken";
 import { ConfigService } from "src/config/config.service";
 
@@ -15,6 +15,13 @@ export class ArticleService {
 
     return this.prisma.article.create({
       data,
+    });
+  }
+
+  async getArticleList() {
+    return await this.prisma.article.findMany({
+      where: { status: articleStatus.active },
+      select: { uid: true, user: { select: { name: true } }, tag: true, title: true, createdAt: true },
     });
   }
 

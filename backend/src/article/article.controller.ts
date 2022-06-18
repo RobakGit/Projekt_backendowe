@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Param, Post, Request, UseGuards } from "@nestjs/common";
 import { Prisma } from "@prisma/client";
-import { AccessGuard, WriterGuard } from "src/auth/roles.guards";
+import { AccessGuard, ReaderGuard, WriterGuard } from "src/auth/roles.guards";
 import { ArticleService } from "./article.service";
 
 @Controller("article")
@@ -11,6 +11,12 @@ export class ArticleController {
   @Post("")
   async create(@Body() data: Prisma.ArticleCreateInput, @Request() req) {
     return this.articleService.createArticle(data, req);
+  }
+
+  @UseGuards(ReaderGuard)
+  @Get("")
+  async getArticleList() {
+    return this.articleService.getArticleList();
   }
 
   @UseGuards(AccessGuard)

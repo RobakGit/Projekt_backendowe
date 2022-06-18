@@ -4,6 +4,7 @@ import { paymentsStatus, Prisma } from "@prisma/client";
 import * as jwt from "jsonwebtoken";
 import { ConfigService } from "src/config/config.service";
 import { symulatePayment } from "./payment.utils";
+import axios from "axios";
 
 @Injectable()
 export class AccessService {
@@ -67,5 +68,28 @@ export class AccessService {
 
       throw new HttpException("payment error", HttpStatus.PAYMENT_REQUIRED);
     }
+  }
+
+  async paymentList(req) {
+    const decode: any = jwt.verify(req.headers.token, this.config.jwtSecret);
+
+    return this.prisma.access.findMany({
+      where: { user: { uid: decode.uid } },
+      select: { payments: { select: { uid: true, amount: true, status: true } }, createdAt: true, endedAt: true },
+    });
+  }
+
+  async bill(uid, req, res) {
+    const decode: any = jwt.verify(req.headers.token, this.config.jwtSecret);
+
+    const checkAccess = await this.prisma.payments.findMany({
+      where: { user: { uid: decode.uid }, uid: uid },
+    });
+
+    if (checkAccess.length == 0) throw new HttpException("Unauthorized", HttpStatus.UNAUTHORIZED);
+
+    axios({ url: this.config.billApi + `/generate/${uid}`, method: "GET", responseType: "stream" }).then(response => {
+      return response.data.pipe(res);
+    });
   }
 }
