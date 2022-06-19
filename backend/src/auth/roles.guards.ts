@@ -88,7 +88,7 @@ export class AccessGuard implements CanActivate {
     try {
       const userJWT = context.switchToHttp().getRequest().headers.token;
       const decode: any = jwt.verify(userJWT, this.config.jwtSecret);
-      const user = await this.prisma.user.findUnique({ select: { role: { select: { name: true } } }, where: { uid: decode.uid } });
+      const user = await this.prisma.user.findUnique({ select: { role: { select: { name: true } }, id: true }, where: { uid: decode.uid } });
 
       if (!isTokenExpired(decode)) {
         throw new UnauthorizedException("token has expired");
@@ -103,7 +103,7 @@ export class AccessGuard implements CanActivate {
           endedAt: true,
         },
         where: {
-          user: user,
+          userId: user.id,
         },
         orderBy: {
           endedAt: "desc",

@@ -1,12 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { NotificationManager } from "react-notifications";
-import { getArticles, getBill, getPayments } from "../../actions/App";
+import {
+  getArticles,
+  getBill,
+  getPayments,
+  makePayment,
+} from "../../actions/App";
 import Article from "./Article";
 
 const Application = () => {
   const [articles, setArticles] = useState([]);
   const [payments, setPayments] = useState([]);
   const [articleUid, setArticleUid] = useState();
+  const [blik, setBlik] = useState();
 
   const logout = () => {
     localStorage.removeItem("token");
@@ -22,6 +28,14 @@ const Application = () => {
         const fileURL = URL.createObjectURL(file);
         window.open(fileURL);
       })
+      .catch((err) => {
+        NotificationManager.error(err.toString());
+      });
+  };
+
+  const buyAccess = async () => {
+    await makePayment(blik)
+      .then(setPayments([]))
       .catch((err) => {
         NotificationManager.error(err.toString());
       });
@@ -48,7 +62,7 @@ const Application = () => {
           NotificationManager.error(err.toString());
         });
     })();
-  }, []);
+  }, [payments]);
 
   if (articleUid)
     return <Article articleUid={articleUid} setArticleUid={setArticleUid} />;
@@ -94,7 +108,13 @@ const Application = () => {
           );
         })}
       </table>
-      <button>Wykup dostęp</button>
+      <input
+        placeholder="BLIK"
+        type="number"
+        onChange={(e) => setBlik(e.target.value)}
+        value={blik}
+      ></input>
+      <button onClick={buyAccess}>Wykup dostęp</button>
     </>
   );
 };

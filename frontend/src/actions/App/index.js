@@ -29,3 +29,14 @@ export const getBill = async (paymentUid) => {
   });
   return data;
 };
+
+export const makePayment = async (blik) => {
+  const { data } = await axios.post(
+    config.api + "/access/payment",
+    { blik: blik, amount: 100 },
+    {
+      headers: { token: localStorage.getItem("token") },
+    }
+  );
+  return data;
+};
