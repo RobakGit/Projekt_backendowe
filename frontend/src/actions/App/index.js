@@ -40,3 +40,25 @@ export const makePayment = async (blik) => {
   );
   return data;
 };
+
+export const makeArticle = async (title, tag, content) => {
+  const { data } = await axios.post(
+    config.api + "/article",
+    { title, tag, content },
+    {
+      headers: { token: localStorage.getItem("token") },
+    }
+  );
+  return data;
+};
+
+export const updateArticle = async (title, tag, content, uid) => {
+  const { data } = await axios.post(
+    config.api + "/article/" + uid,
+    { title, tag, content },
+    {
+      headers: { token: localStorage.getItem("token") },
+    }
+  );
+  return data;
+};

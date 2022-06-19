@@ -31,4 +31,11 @@ export class ArticleService {
       where: { uid },
     });
   }
+
+  async updateArticle(data, uid: string) {
+    return await this.prisma.article.updateMany({
+      data,
+      where: { uid },
+    });
+  }
 }

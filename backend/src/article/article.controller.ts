@@ -24,4 +24,10 @@ export class ArticleController {
   async getArticle(@Param("uid") uid: string) {
     return this.articleService.getArticle(uid);
   }
+
+  @UseGuards(WriterGuard)
+  @Post(":uid")
+  async updateArticle(@Body() data, @Param("uid") uid: string) {
+    return this.articleService.updateArticle(data, uid);
+  }
 }
